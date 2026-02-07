@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "skills": {
+    "gog": {
+      "version": "1.0.0",
+      "installedAt": 1770458647436
+    },
+    "notion-skill": {
+      "version": "1.0.0",
+      "installedAt": 1770462906511
+    }
+  }
+}
