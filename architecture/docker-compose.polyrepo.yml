@@ -1,0 +1,28 @@
+services:
+  gateway:
+    image: nginx:alpine
+    volumes:
+      - ./nginx-polyrepo.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8088:80"
+    depends_on:
+      - home-shell
+      - money-manager-api
+      - money-manager-ui
+      - agent-monitor-api
+      - agent-monitor-ui
+
+  home-shell:
+    build: ../services/home-shell
+
+  money-manager-api:
+    build: ../services/money-manager/api
+
+  money-manager-ui:
+    build: ../services/money-manager/ui
+
+  agent-monitor-api:
+    build: ../services/agent-monitor/api
+
+  agent-monitor-ui:
+    build: ../services/agent-monitor/ui
