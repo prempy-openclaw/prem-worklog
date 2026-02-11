@@ -1,0 +1,13 @@
+task_id: "<TASK-YYYYMMDD-XXX>"
+owner: "<coordinator|researcher|engineer|qa>"
+input_summary: "<what this role received>"
+output_summary: "<what this role produced>"
+artifacts:
+  - "<file path / URL / commit ref>"
+verification:
+  - command: "<exact command>"
+    result: "<pass|fail + short evidence>"
+risks:
+  - "<risk 1>"
+next_handoff_to: "<role>"
+status: "<done|blocked|needs_review>"
