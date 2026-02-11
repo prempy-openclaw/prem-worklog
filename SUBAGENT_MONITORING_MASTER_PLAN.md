@@ -10,8 +10,8 @@ Mode: Plan-first, Native-first (OpenClaw)
 - [x] POC evidence index published (`subagent-monitoring/POC_EVIDENCE_INDEX.md`)
 - [x] Backend monitoring API extended (task detail + recovery endpoints)
 - [x] Queue/dashboard defaults migrated to `subagent-monitoring/` paths
-- [ ] Frontend monitor page wiring for recovery actions + task detail view
-- [ ] End-to-end staged deploy and production canary verification
+- [x] Frontend monitor page wiring for recovery actions + task detail view
+- [x] End-to-end staged deploy and production-like verification (api/frontend rebuilt + live endpoint checks)
 1) Executive Summary
 
 This master document consolidates the requirements, implementation strategy, deployment plan, and work breakdown for restoring sub-agent monitoring tools to their original vision while addressing prior failures (false in-progress states, noisy alerts, weak proof). The plan uses OpenClaw's native capabilities first and adds a minimal custom policy layer to achieve deterministic control and truthful observability.
