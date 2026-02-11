@@ -1,0 +1,16 @@
+tasks:
+- task_id: TASK-20260211-001
+  title: Pilot handoff validation
+  owner: qa
+  status: done
+  priority: high
+  updated_at: '2026-02-11T08:00:00Z'
+- task_id: TASK-20260211-002
+  title: <add title>
+  owner: engineer
+  status: in_progress
+  priority: medium
+  updated_at: '2026-02-11T08:22:42+00:00'
+locks:
+  TASK-20260211-001: qa
+  TASK-20260211-002: engineer

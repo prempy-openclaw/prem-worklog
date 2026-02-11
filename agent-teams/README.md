@@ -34,3 +34,29 @@ python3 /root/.openclaw/workspace/agent-teams/validate_handoff.py <handoff.yaml>
 Close policy:
 - `FAIL` => task cannot be closed
 - `PASS` + QA gate satisfied => close allowed
+
+## P1 Owner Lock + Queue
+
+Task queue file:
+
+```bash
+/root/.openclaw/workspace/agent-teams/task_queue.yaml
+```
+
+Claim task (owner lock):
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/claim_task.py <task_id> <owner>
+```
+
+Rule:
+- If a task is locked by another owner, claim fails.
+- Reassignment must be explicit via coordinator decision.
+
+## P1 Daily Standup Generator
+
+Generate standup summary:
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/standup_report.py
+```
