@@ -60,3 +60,32 @@ Generate standup summary:
 ```bash
 python3 /root/.openclaw/workspace/agent-teams/standup_report.py
 ```
+
+## P2 Metrics Dashboard (CLI)
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/metrics_report.py
+```
+
+Tracks:
+- total tasks
+- blocked ratio
+- rework rate
+- median time-to-done
+
+## P2 Blocked Auto-Escalation
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/escalate_blocked.py
+```
+
+Rule:
+- blocked task older than 15 minutes => mark escalated + include in escalation report
+
+## P2 Weekly Velocity
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/weekly_velocity.py
+```
+
+Tracks completed tasks in the last 7 days by owner.
