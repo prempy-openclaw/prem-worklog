@@ -180,11 +180,15 @@ def display_todo_list(database_id, status_filter=None, limit=None):
 
 def display_todo_simple(database_id, max_items=10):
     """Display todo list in simple format - only Next Up and In Progress"""
-    result = query_database(database_id)
+    # Use Notion API filter directly for better performance
+    filter_json = json.dumps({
+        "or": [
+            {"property": "Status", "select": {"equals": "Next Up"}},
+            {"property": "Status", "select": {"equals": "In Progress"}}
+        ]
+    })
+    result = query_database(database_id, filter_json)
     results = result.get('results', [])
-    
-    # Filter only Next Up and In Progress
-    active_statuses = {'Next Up', 'In Progress'}
     
     def get_status_name(item):
         status = item.get('properties', {}).get('Status', {})
@@ -203,9 +207,6 @@ def display_todo_simple(database_id, max_items=10):
         if due_prop and due_prop.get('date'):
             return due_prop['date'].get('start', '')
         return ''
-    
-    # Filter by status
-    results = [r for r in results if get_status_name(r) in active_statuses]
     
     # Sort by priority and status
     priority_order = {'High 🔥': 0, 'High ??': 1, 'Medium': 2, 'Low': 3, '': 4}

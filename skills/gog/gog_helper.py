@@ -209,6 +209,99 @@ def gmail_labels():
         result = json.loads(response.read().decode())
         print(json.dumps(result, indent=2))
 
+def gmail_inbox(max_results=10, query="is:unread"):
+    """List Gmail messages from inbox"""
+    token = get_access_token()
+    encoded_query = urllib.parse.quote(query)
+    req = urllib.request.Request(
+        f"https://www.googleapis.com/gmail/v1/users/me/messages?maxResults={max_results}&q={encoded_query}",
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    with urllib.request.urlopen(req) as response:
+        result = json.loads(response.read().decode())
+
+    messages = result.get('messages', [])
+    if not messages:
+        print("📭 ไม่มีอีเมลใหม่")
+        return
+
+    print(f"📬 อีเมลที่ยังไม่อ่าน ({len(messages)} รายการ):\n")
+    for msg in messages:
+        msg_req = urllib.request.Request(
+            f"https://www.googleapis.com/gmail/v1/users/me/messages/{msg['id']}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date",
+            headers={'Authorization': f'Bearer {token}'}
+        )
+        with urllib.request.urlopen(msg_req) as msg_resp:
+            msg_data = json.loads(msg_resp.read().decode())
+
+        headers = {h['name']: h['value'] for h in msg_data.get('payload', {}).get('headers', [])}
+        subject = headers.get('Subject', '(no subject)')
+        sender = headers.get('From', 'unknown')
+        date = headers.get('Date', '')
+        snippet = msg_data.get('snippet', '')
+        labels = msg_data.get('labelIds', [])
+
+        # Detect spam/promo
+        category = ''
+        if 'CATEGORY_PROMOTIONS' in labels:
+            category = '📢 Promo'
+        elif 'CATEGORY_SOCIAL' in labels:
+            category = '👥 Social'
+        elif 'CATEGORY_UPDATES' in labels:
+            category = '🔔 Update'
+        elif 'CATEGORY_FORUMS' in labels:
+            category = '💬 Forum'
+        elif 'SPAM' in labels:
+            category = '🚫 Spam'
+        else:
+            category = '📧 Primary'
+
+        print(f"  {category} | {subject}")
+        print(f"    From: {sender}")
+        print(f"    Date: {date}")
+        print(f"    Preview: {snippet[:120]}...")
+        print(f"    ID: {msg['id']}")
+        print()
+
+def gmail_read(msg_id):
+    """Read a specific Gmail message"""
+    token = get_access_token()
+    req = urllib.request.Request(
+        f"https://www.googleapis.com/gmail/v1/users/me/messages/{msg_id}?format=full",
+        headers={'Authorization': f'Bearer {token}'}
+    )
+
+    with urllib.request.urlopen(req) as response:
+        msg_data = json.loads(response.read().decode())
+
+    headers = {h['name']: h['value'] for h in msg_data.get('payload', {}).get('headers', [])}
+    subject = headers.get('Subject', '(no subject)')
+    sender = headers.get('From', 'unknown')
+    date = headers.get('Date', '')
+
+    # Extract body
+    import base64
+    body = ''
+    payload = msg_data.get('payload', {})
+    if 'body' in payload and payload['body'].get('data'):
+        body = base64.urlsafe_b64decode(payload['body']['data']).decode('utf-8', errors='replace')
+    elif 'parts' in payload:
+        for part in payload['parts']:
+            if part.get('mimeType') == 'text/plain' and part.get('body', {}).get('data'):
+                body = base64.urlsafe_b64decode(part['body']['data']).decode('utf-8', errors='replace')
+                break
+        if not body:
+            for part in payload['parts']:
+                if part.get('mimeType') == 'text/html' and part.get('body', {}).get('data'):
+                    body = base64.urlsafe_b64decode(part['body']['data']).decode('utf-8', errors='replace')
+                    break
+
+    print(f"📧 {subject}")
+    print(f"From: {sender}")
+    print(f"Date: {date}")
+    print(f"\n{body[:3000]}")
+
 def calendar_list():
     """List calendars"""
     token = get_access_token()
@@ -314,8 +407,18 @@ def calendar_events_display(calendar_id='primary', max_results=10, date_filter=N
         # Sort by start time
         items.sort(key=lambda x: x.get('start', {}).get('dateTime') or x.get('start', {}).get('date'))
 
-        # Display events
-        for i, e in enumerate(items, 1):
+        # Display events in table format
+        if not items:
+            print('🎉 ไม่มีนัดหมายวันนี้!\n')
+            return
+
+        # Print table header
+        print('┌────────────┬────────────┬────────────────────────────┬─────────────┬──────────────┬─────────────┐')
+        print('│ เวลา     │ กิจกรรม   │ รายละเอียด             │ สถานที่   │ รายละเอียด  │')
+        print('├────────────┼────────────┼────────────────────────────┼─────────────┼──────────────┼─────────────┤')
+
+        # Display each event
+        for e in items:
             start = e.get('start', {})
             end = e.get('end', {})
             summary = e.get('summary', 'ไม่มีชื่อ')
@@ -338,19 +441,72 @@ def calendar_events_display(calendar_id='primary', max_results=10, date_filter=N
             else:
                 time_range = ''
 
-            # Display
-            print(f'{i}. {emoji} {summary}')
+            # Truncate for table display
+            summary_short = summary[:20] if len(summary) > 20 else summary
+            location_short = location[:12] if len(location) > 12 else location
+            desc_short = description[:20] if description and len(description) > 20 else (description or '')
 
-            if time_range:
-                print(f'   🕒 {time_range}')
+            # Print row
+            print(f'│ {time_range:10} │ {emoji:10} │ {summary_short:20} │ {location_short:11} │ {desc_short:12} │')
 
-            if location:
-                print(f'   📍 {location}')
+        # Print table footer
+        print('└────────────┴────────────┴────────────────────────────┴─────────────┴──────────────┴─────────────┘')
+        print()
 
-            if description and len(description) < 200:
-                print(f'   📝 {description[:100]}...' if len(description) > 100 else f'   📝 {description}')
+        # Calculate and display free time slots
+        # Working hours: 09:00-18:00 and 20:00-23:00 only
+        bkk = tz.gettz('Asia/Bangkok')
+        busy_slots = []
+        for e in items:
+            start = e.get('start', {})
+            end = e.get('end', {})
+            if 'dateTime' in start:
+                dt_s = datetime.datetime.fromisoformat(start['dateTime'].replace('Z', '+00:00')).astimezone(bkk)
+                dt_e = datetime.datetime.fromisoformat(end['dateTime'].replace('Z', '+00:00')).astimezone(bkk)
+                busy_slots.append((dt_s, dt_e))
 
-            print()
+        if date_filter:
+            date_obj = datetime.datetime.strptime(date_filter, '%Y-%m-%d').replace(tzinfo=bkk)
+
+            # Define working windows
+            work_windows = [
+                (date_obj.replace(hour=9, minute=0), date_obj.replace(hour=18, minute=0)),
+                (date_obj.replace(hour=20, minute=0), date_obj.replace(hour=23, minute=0)),
+            ]
+
+            busy_slots.sort(key=lambda x: x[0])
+            free_slots = []
+
+            for win_start, win_end in work_windows:
+                current = win_start
+                for bs, be in busy_slots:
+                    # Skip busy slots outside this window
+                    if be <= win_start or bs >= win_end:
+                        continue
+                    # Clamp to window
+                    bs_clamped = max(bs, win_start)
+                    be_clamped = min(be, win_end)
+                    if bs_clamped > current:
+                        duration = (bs_clamped - current).total_seconds() / 60
+                        if duration >= 30:
+                            free_slots.append((current, bs_clamped, int(duration)))
+                    current = max(current, be_clamped)
+                # Remaining time in window
+                if current < win_end:
+                    duration = (win_end - current).total_seconds() / 60
+                    if duration >= 30:
+                        free_slots.append((current, win_end, int(duration)))
+
+            if free_slots:
+                print('⏰ ช่วงเวลาว่าง:')
+                for fs, fe, dur in free_slots:
+                    hours = dur // 60
+                    mins = dur % 60
+                    dur_str = f'{hours}ชม.' if mins == 0 else (f'{hours}ชม.{mins}นาที' if hours > 0 else f'{mins}นาที')
+                    print(f'  🟢 {fs.strftime("%H:%M")} - {fe.strftime("%H:%M")} ({dur_str})')
+                print()
+            else:
+                print('⏰ ไม่มีช่วงเวลาว่างวันนี้\n')
 
 def calendar_create(calendar_id='primary', summary='', start_time='', end_time='', location='', description=''):
     """Create a calendar event"""
@@ -483,15 +639,27 @@ if __name__ == '__main__':
         print("  create <summary> <start> <end> [location] [description]  Create event")
         print("  update <event_id> [summary] [start] [end] [location] [desc]  Update event")
         print("  delete <event_id>                                                 Delete event")
-        print("\nRaw Commands (JSON output):")
+        print("\nGmail Commands:")
+        print("  gmail-inbox [max] [query]         List unread emails (default: 10, is:unread)")
+        print("  gmail-read <msg_id>               Read specific email")
         print("  gmail-labels                      List Gmail labels")
+        print("\nRaw Commands (JSON output):")
         print("  calendar-list                    List calendars")
         print("  calendar-events [cal_id] [max]    List events (JSON)")
         sys.exit(1)
 
     command = sys.argv[1]
 
-    if command == 'gmail-labels':
+    if command == 'gmail-inbox':
+        max_r = int(sys.argv[2]) if len(sys.argv) > 2 else 10
+        query = sys.argv[3] if len(sys.argv) > 3 else 'is:unread'
+        gmail_inbox(max_r, query)
+    elif command == 'gmail-read':
+        if len(sys.argv) < 3:
+            print("Usage: gmail-read <msg_id>", file=sys.stderr)
+            sys.exit(1)
+        gmail_read(sys.argv[2])
+    elif command == 'gmail-labels':
         gmail_labels()
     elif command == 'calendar-list':
         calendar_list()

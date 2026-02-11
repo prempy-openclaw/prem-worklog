@@ -1,0 +1,19 @@
+{
+  "date": "2026-02-08",
+  "processedAt": "2026-02-08T13:00Z",
+  "totalPending": 2,
+  "transactionsCreated": 0,
+  "skipped": [
+    {
+      "id": "8d505359-1a15-4c1f-a8de-27b883cf9845",
+      "reason": "ShopeePay failed payment notification (Spotify Premium) — not a bank transaction",
+      "payload_preview": "ShopeePay|ชำระเงิน Spotify Premium TH ไม่สำเร็จ|฿149.00"
+    },
+    {
+      "id": "ca47c9a0-6288-410f-b6f2-ebbe891df8c4",
+      "reason": "TrueMoney promo/spam (Booking.com ad) — not a bank transaction",
+      "payload_preview": "TrueMoney|จองที่พักก็ได้ลด 10%|Booking.com"
+    }
+  ],
+  "note": "No K+ bank transactions today. Both webhooks were non-financial notifications marked PROCESSED."
+}

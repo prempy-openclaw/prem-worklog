@@ -1,9 +1,26 @@
 # TOOLS.md - Local Notes
 
+## Voice Transaction (Groq Whisper)
+
+**API:** Groq Whisper large-v3 (ฟรี)
+**Script:** `/root/.openclaw/workspace/skills/voice-tx/transcribe.sh`
+
+### Usage
+```bash
+/root/.openclaw/workspace/skills/voice-tx/transcribe.sh <audio_file> [language]
+```
+
+### Workflow
+เมื่อ Oscar ส่งเสียง → ถอดเสียง → parse → สร้าง transaction
+
+---
+
 ## Claude Code (Coding Assistant)
 
 **Version:** 2.1.34
 **API Key:** Configured in `~/.bashrc`
+**⚠️ MUST READ:** ก่อนใช้ Claude Code ทุกครั้ง → อ่าน skill `claude-code-mastery` ก่อนเสมอ!
+**Skill:** `/root/.openclaw/workspace/skills/claude-code-mastery/SKILL.md`
 
 ### Usage
 ```bash
@@ -18,7 +35,7 @@ claude "แก้ bug ใน main.go"
 ```
 
 ### Workflow
-เมื่อ Oscar ขอให้เขียน code → ใช้ Claude Code CLI เป็นหลัก
+เมื่อ Oscar ขอให้เขียน code → ใช้ Claude Code CLI เป็นหลัก → อ่าน claude-code-mastery skill ก่อนทุกครั้ง
 
 ---
 
