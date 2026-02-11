@@ -89,3 +89,30 @@ python3 /root/.openclaw/workspace/agent-teams/weekly_velocity.py
 ```
 
 Tracks completed tasks in the last 7 days by owner.
+
+## P3 Auto Task Intake
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/intake_task.py <task_id> "<title>" [priority]
+```
+
+- Auto-assigns initial owner based on title keywords.
+- Creates owner lock immediately.
+
+## P3 Coordinator Auto-Triage
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/coordinator_triage.py
+```
+
+- Moves `todo` tasks into `in_progress` for active execution.
+
+## P3 Team Dashboard Render
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/render_dashboard.py
+```
+
+Output:
+- `agent-teams/DASHBOARD.md` (human-readable team board)
+

@@ -11,6 +11,15 @@ tasks:
   status: in_progress
   priority: medium
   updated_at: '2026-02-11T08:22:42+00:00'
+- task_id: TASK-20260211-003
+  title: Research best webhook retry strategy
+  owner: researcher
+  status: in_progress
+  priority: high
+  created_at: '2026-02-11T08:29:04+00:00'
+  updated_at: '2026-02-11T08:29:04+00:00'
+  reopen_count: 0
 locks:
   TASK-20260211-001: qa
   TASK-20260211-002: engineer
+  TASK-20260211-003: researcher
