@@ -138,3 +138,30 @@ Pass criteria:
 - File: `agent-teams/pr_checklist.md`
 - Use before merge decision for every delivery task
 
+## P5 Task Scoring
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/task_score.py
+```
+
+- Calculates priority score per task.
+- Sorts queue by highest score first.
+
+## P5 Smart Reroute
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/smart_reroute.py
+```
+
+- Reassigns tasks based on rule triggers (e.g., blocked engineer task -> coordinator).
+
+## P5 Incident Mode
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/incident_mode.py on "<reason>"
+python3 /root/.openclaw/workspace/agent-teams/incident_mode.py off
+python3 /root/.openclaw/workspace/agent-teams/incident_mode.py status
+```
+
+- Enables emergency operating mode flag for stricter triage discipline.
+
