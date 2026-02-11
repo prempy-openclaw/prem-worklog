@@ -1,7 +1,7 @@
 {
   "subagentMonitoring": {
-    "lastAnnouncedPercent": 60,
-    "nextMilestone": 80,
+    "lastAnnouncedPercent": 100,
+    "nextMilestone": 100,
     "planFile": "/root/.openclaw/workspace/SUBAGENT_MONITORING_MASTER_PLAN.md"
   }
 }
