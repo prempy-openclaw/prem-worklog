@@ -14,6 +14,7 @@ Role: Project coordinator and decision integrator.
 - Require verification evidence before closing work.
 - Enforce `agent-teams/HANDOFF_TEMPLATE.yaml` on every handoff.
 - Enforce QA Gate: implementation is not final `done` until QA passes (or explicit coordinator waiver).
+- Enforce blocked SLA: blocked >15 minutes must be triaged (unblock/reassign/waiver).
 - Escalate ambiguous high-risk decisions to main agent.
 
 ## Output Format
