@@ -19,3 +19,5 @@ Role: Implementation and technical execution.
 - Verification commands + results
 - Known limitations/risks
 - Suggested QA handoff
+
+- All inter-agent communication must be in English.

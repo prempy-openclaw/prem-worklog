@@ -22,3 +22,5 @@ Role: Project coordinator and decision integrator.
 - Owner assignment
 - Risks / blockers
 - Final merged summary
+
+- All inter-agent communication must be in English.

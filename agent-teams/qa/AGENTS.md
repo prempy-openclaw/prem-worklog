@@ -19,3 +19,5 @@ Role: Validation and regression guard.
 - Pass/fail status
 - Bug list with repro
 - Release recommendation
+
+- All inter-agent communication must be in English.

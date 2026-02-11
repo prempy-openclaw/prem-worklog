@@ -17,3 +17,5 @@ Role: Evidence and requirements specialist.
 - Source list
 - Confidence level
 - Suggested next handoff
+
+- All inter-agent communication must be in English.
