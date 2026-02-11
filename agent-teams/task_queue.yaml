@@ -5,27 +5,39 @@ tasks:
   status: in_progress
   priority: high
   created_at: '2026-02-11T08:29:04+00:00'
-  updated_at: '2026-02-11T08:29:04+00:00'
+  updated_at: '2026-02-11T10:32:00+00:00'
   reopen_count: 0
   score: 7
   execution_state: unknown
   last_active_at: null
   idle_minutes: null
-  stale_in_progress: true
+  stale_in_progress: false
+  recovery_action: auto_reroute_due_to_stale
+  previous_owner: coordinator
+  next_action: Compare 3 retry/backoff patterns with failure scenarios and publish
+    recommendation note in 45m.
+  eta: 45m
+  recovered_at: '2026-02-11T10:33:21.955125+00:00'
 - task_id: TASK-20260211-005
   title: Implement Monitoring Dashboard MVP foundation in webhook-server (API + React
     page)
-  owner: engineer
+  owner: coordinator
   status: in_progress
   priority: high
   created_at: '2026-02-11T09:05:30+00:00'
-  updated_at: '2026-02-11T09:05:30+00:00'
+  updated_at: '2026-02-11T10:32:00+00:00'
   reopen_count: 0
   score: 7
-  last_active_at: '2026-02-11T10:08:27.982128+00:00'
-  execution_state: idle
-  idle_minutes: 22
-  stale_in_progress: true
+  last_active_at: '2026-02-11T10:33:21.350738+00:00'
+  execution_state: active
+  idle_minutes: 0
+  stale_in_progress: false
+  recovery_action: auto_reroute_due_to_stale
+  previous_owner: coordinator
+  next_action: Define MVP API/React scope and create concrete implementation checklist
+    before handoff in 35m.
+  eta: 35m
+  recovered_at: '2026-02-11T10:33:21.955125+00:00'
 - task_id: TASK-20260211-001
   title: Pilot handoff validation
   owner: qa
@@ -35,22 +47,28 @@ tasks:
   score: 5
   last_active_at: '2026-02-11T10:07:39.935012+00:00'
   execution_state: idle
-  idle_minutes: 22
+  idle_minutes: 25
   stale_in_progress: false
 - task_id: TASK-20260211-004
   title: Build Agent Team Monitoring Dashboard (God View, Deep Trace, Safety, HITL,
     Cost/Latency)
-  owner: coordinator
+  owner: engineer
   status: in_progress
   priority: critical
   created_at: '2026-02-11T08:44:09+00:00'
-  updated_at: '2026-02-11T08:44:09+00:00'
+  updated_at: '2026-02-11T10:32:00+00:00'
   reopen_count: 0
   score: 5
-  last_active_at: '2026-02-11T10:07:32.609994+00:00'
+  last_active_at: '2026-02-11T10:08:27.982128+00:00'
   execution_state: idle
-  idle_minutes: 22
-  stale_in_progress: true
+  idle_minutes: 25
+  stale_in_progress: false
+  recovery_action: auto_reroute_due_to_stale
+  previous_owner: coordinator
+  next_action: Start implementation of dashboard shell (layout + core telemetry endpoint
+    wiring) and push first commit in 50m.
+  eta: 50m
+  recovered_at: '2026-02-11T10:33:21.955125+00:00'
 - task_id: TASK-20260211-002
   title: <add title>
   owner: engineer
@@ -63,11 +81,11 @@ tasks:
   score: 3
   last_active_at: '2026-02-11T10:08:27.982128+00:00'
   execution_state: idle
-  idle_minutes: 22
+  idle_minutes: 25
   stale_in_progress: false
 locks:
   TASK-20260211-001: qa
   TASK-20260211-002: engineer
   TASK-20260211-003: researcher
-  TASK-20260211-004: coordinator
-  TASK-20260211-005: engineer
+  TASK-20260211-004: engineer
+  TASK-20260211-005: coordinator

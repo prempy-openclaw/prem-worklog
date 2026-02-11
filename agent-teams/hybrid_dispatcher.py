@@ -52,7 +52,16 @@ def main():
             t['execution_state'] = 'active' if mins < 3 else 'idle'
             t['idle_minutes'] = mins
 
-            if status == 'in_progress' and mins >= STALE_MIN and prio in ('critical', 'high'):
+            recovered_at = t.get('recovered_at')
+            grace = False
+            if recovered_at:
+                try:
+                    rdt = datetime.fromisoformat(str(recovered_at).replace('Z', '+00:00'))
+                    grace = (now - rdt).total_seconds() < 30 * 60
+                except Exception:
+                    grace = False
+
+            if status == 'in_progress' and mins >= STALE_MIN and prio in ('critical', 'high') and not grace:
                 t['stale_in_progress'] = True
                 alerts.append(f"{t.get('task_id')} ({owner}) stale {mins}m")
             else:
@@ -61,9 +70,19 @@ def main():
             t['execution_state'] = 'unknown'
             t['last_active_at'] = None
             t['idle_minutes'] = None
-            if status == 'in_progress' and prio in ('critical', 'high'):
+            recovered_at = t.get('recovered_at')
+            grace = False
+            if recovered_at:
+                try:
+                    rdt = datetime.fromisoformat(str(recovered_at).replace('Z', '+00:00'))
+                    grace = (now - rdt).total_seconds() < 30 * 60
+                except Exception:
+                    grace = False
+            if status == 'in_progress' and prio in ('critical', 'high') and not grace:
                 t['stale_in_progress'] = True
                 alerts.append(f"{t.get('task_id')} ({owner}) no activity source")
+            else:
+                t['stale_in_progress'] = False
 
     data['tasks'] = tasks
     QUEUE.write_text(yaml.safe_dump(data, sort_keys=False))
