@@ -116,3 +116,25 @@ python3 /root/.openclaw/workspace/agent-teams/render_dashboard.py
 Output:
 - `agent-teams/DASHBOARD.md` (human-readable team board)
 
+## P4 Release Gate
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/release_gate.py <task_id>
+```
+
+Pass criteria:
+- qa_status == pass
+- verification_pass == true
+- task not blocked
+- no critical defects open
+
+## P4 Escalation Rules
+
+- File: `agent-teams/escalation_rules.yaml`
+- Defines rule-based escalations (blocked timeout, reopen loops, critical defects, owner stall)
+
+## P4 PR / Merge Checklist
+
+- File: `agent-teams/pr_checklist.md`
+- Use before merge decision for every delivery task
+
