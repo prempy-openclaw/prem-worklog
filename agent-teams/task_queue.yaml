@@ -8,6 +8,24 @@ tasks:
   updated_at: '2026-02-11T08:29:04+00:00'
   reopen_count: 0
   score: 7
+  execution_state: unknown
+  last_active_at: null
+  idle_minutes: null
+  stale_in_progress: true
+- task_id: TASK-20260211-005
+  title: Implement Monitoring Dashboard MVP foundation in webhook-server (API + React
+    page)
+  owner: engineer
+  status: in_progress
+  priority: high
+  created_at: '2026-02-11T09:05:30+00:00'
+  updated_at: '2026-02-11T09:05:30+00:00'
+  reopen_count: 0
+  score: 7
+  last_active_at: '2026-02-11T10:08:27.982128+00:00'
+  execution_state: idle
+  idle_minutes: 22
+  stale_in_progress: true
 - task_id: TASK-20260211-001
   title: Pilot handoff validation
   owner: qa
@@ -15,6 +33,24 @@ tasks:
   priority: high
   updated_at: '2026-02-11T08:00:00Z'
   score: 5
+  last_active_at: '2026-02-11T10:07:39.935012+00:00'
+  execution_state: idle
+  idle_minutes: 22
+  stale_in_progress: false
+- task_id: TASK-20260211-004
+  title: Build Agent Team Monitoring Dashboard (God View, Deep Trace, Safety, HITL,
+    Cost/Latency)
+  owner: coordinator
+  status: in_progress
+  priority: critical
+  created_at: '2026-02-11T08:44:09+00:00'
+  updated_at: '2026-02-11T08:44:09+00:00'
+  reopen_count: 0
+  score: 5
+  last_active_at: '2026-02-11T10:07:32.609994+00:00'
+  execution_state: idle
+  idle_minutes: 22
+  stale_in_progress: true
 - task_id: TASK-20260211-002
   title: <add title>
   owner: engineer
@@ -25,7 +61,13 @@ tasks:
   verification_pass: true
   critical_open: 0
   score: 3
+  last_active_at: '2026-02-11T10:08:27.982128+00:00'
+  execution_state: idle
+  idle_minutes: 22
+  stale_in_progress: false
 locks:
   TASK-20260211-001: qa
   TASK-20260211-002: engineer
   TASK-20260211-003: researcher
+  TASK-20260211-004: coordinator
+  TASK-20260211-005: engineer

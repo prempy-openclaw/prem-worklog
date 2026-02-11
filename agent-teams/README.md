@@ -165,3 +165,13 @@ python3 /root/.openclaw/workspace/agent-teams/incident_mode.py status
 
 - Enables emergency operating mode flag for stricter triage discipline.
 
+## Hybrid Autonomous Dispatcher
+
+```bash
+python3 /root/.openclaw/workspace/agent-teams/hybrid_dispatcher.py
+```
+
+- Updates per-task runtime fields (`execution_state`, `last_active_at`, `idle_minutes`, `stale_in_progress`).
+- Flags stale high/critical in-progress tasks when no real activity is seen for >= 20 minutes.
+- Designed for periodic cron execution (every 1 minute) with alert-on-stall.
+
