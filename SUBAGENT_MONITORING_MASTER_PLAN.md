@@ -1,333 +1,428 @@
-# SUBAGENT MONITORING MASTER PLAN
-
+Sub-Agent Monitoring Master Plan
 Owner: Prem  
 Requester: Oscar  
 Mode: Plan-first, Native-first (OpenClaw)
 
----
+## Progress Tracker
+- [x] Master requirements/spec consolidated
+- [x] State machine spec drafted (`subagent-monitoring/STATE_MACHINE_SPEC.md`)
+- [x] Task contract drafted (`subagent-monitoring/TASK_CONTRACT_V1.md`)
+- [x] POC evidence index published (`subagent-monitoring/POC_EVIDENCE_INDEX.md`)
+- [x] Backend monitoring API extended (task detail + recovery endpoints)
+- [x] Queue/dashboard defaults migrated to `subagent-monitoring/` paths
+- [ ] Frontend monitor page wiring for recovery actions + task detail view
+- [ ] End-to-end staged deploy and production canary verification
+1) Executive Summary
 
-## 1) Executive Summary
-This master document consolidates requirements, implementation strategy, deployment strategy, and work breakdown for restoring **sub-agent monitoring tools** to the original vision—while fixing prior failures (false in-progress states, noisy alerts, weak proof).
+This master document consolidates the requirements, implementation strategy, deployment plan, and work breakdown for restoring sub-agent monitoring tools to their original vision while addressing prior failures (false in-progress states, noisy alerts, weak proof). The plan uses OpenClaw's native capabilities first and adds a minimal custom policy layer to achieve deterministic control and truthful observability.
 
-Design principle:
-1. Use OpenClaw native primitives first (`multi-agent`, `sessions_spawn`, `cron/heartbeat`)  
-2. Add only a thin custom policy layer (stale/recovery/evidence)  
-3. Enforce proof-based progress (task -> session -> artifact -> verification)
+Design Principle:
 
----
+Use OpenClaw native primitives first (multi-agent, sessions_spawn, cron/heartbeat).
 
-## 2) Problem Statement
-Previous setup degraded because:
-- Workflow state and runtime execution were conflated.
-- Tasks looked active without real agent activity.
-- Alerts were noisy and repetitive.
-- Completion was possible without hard evidence.
+Introduce a thin custom policy layer for stale/recovery/evidence handling.
 
-We need truthful runtime observability and deterministic control.
+Enforce proof-based progress (task -> session -> artifact -> verification).
 
----
+2) Problem Statement
 
-## 3) Objectives
-1. Truthful status: separate `workflow_state` and `execution_state`.
-2. Verifiable execution: timestamped evidence and verification results.
-3. Reliable operations: stale detection, deterministic recovery, low-noise alerting.
-4. Native compatibility: fit OpenClaw session/sub-agent model without heavy custom engine.
+Previous monitoring solutions failed due to:
 
----
+Conflation of workflow and execution state: Workflow status (e.g., in_progress, done) was misaligned with the actual runtime execution state, leading to false reporting.
 
-## 4) Scope
-### In Scope
-- State model and contracts
-- Runtime signal ingestion
-- Reconciliation logic
-- Monitoring APIs + realtime stream
-- Dashboard views and logs
-- Alerting + stale recovery
-- Deployment and rollback plan
-- Work breakdown with ownership
+Noisy alerts: Alerts were triggered too frequently and did not provide enough actionable insights.
 
-### Out of Scope (v1)
-- Replacing OpenClaw with a custom workflow engine
-- Fully autonomous no-guardrail orchestration
-- Enterprise RBAC fine-grain model
+Weak proof of task completion: Tasks marked as complete without verifiable evidence.
 
----
+To resolve these issues, we need to decouple workflow state from execution state, enforce evidence-based execution, and ensure reliable operations with minimal noise.
 
-## 5) Core Architecture (Native-First)
+3) Objectives
 
-## Layer A — OpenClaw Native (Mandatory)
-- Multi-agent role isolation
-- Subtask parallelization via `sessions_spawn`
-- Scheduled checks via cron/heartbeat
-- Session-based traceability for execution proof
+Truthful Status: Separate workflow_state (reflecting task status) from execution_state (reflecting runtime activity).
 
-## Layer B — Thin Custom Policy (Minimal)
-- Execution stale detection
-- Recovery/escalation policies
-- Evidence validator and proof chain formatter
-- Alert dedupe/cooldown
+Verifiable Execution: Introduce timestamped evidence and verification results to guarantee task completion.
 
-## Layer C — Monitoring UI/API
-- Summary + task list + detailed logs
-- Realtime stream
-- Truthful split of workflow vs execution
+Reliable Operations: Detect stale states, enable deterministic recovery, and reduce alert noise.
 
----
+Native Compatibility: Integrate seamlessly with OpenClaw's session/sub-agent model without overloading it with custom layers.
 
-## 6) Canonical Data Definitions
+4) Scope
+In Scope
 
-### 6.1 State Definitions
-- `workflow_state`: `todo | in_progress | waiting | review | done | blocked`
-- `execution_state`: `active | idle | unknown | stale | error`
+State Model & Contracts: Define the relationship between workflow_state and execution_state.
 
-Rule: execution state is derived only from runtime activity, never from workflow labels.
+Runtime Signal Ingestion: Capture activity, tool calls, artifact writes, and errors.
 
-### 6.2 Required Task Fields
-- `task_id` (immutable)
-- `title`
-- `owner`
-- `priority`
-- `workflow_state`
-- `execution_state`
-- `next_action` (required if in_progress)
-- `eta` (required if in_progress)
-- `created_at`, `updated_at`, `last_action_at` (UTC)
-- `evidence_path` (required if done)
-- `verification_result` (required if done)
+Reconciliation Logic: Map runtime state to task state and detect discrepancies.
 
-### 6.3 Validation Rules
-1. `in_progress` requires `next_action` + `eta`
-2. `done` requires evidence + verification pass
-3. Owner change requires handoff reason
+Monitoring APIs & Realtime Streams: Expose task states, logs, and recovery actions.
 
----
+UI & Dashboards: Visualize real-time task execution with truthful state separation.
 
-## 7) Functional Requirements
+Alerting & Stale Recovery: Implement intelligent alerting, recovery, and escalation policies.
 
-## FR-1 Task Contract & Handoff
+Deployment & Rollback Plans: Provide a robust deployment and rollback process.
+
+Out of Scope (v1)
+
+Custom Workflow Engine: No replacement of OpenClaw with a custom engine.
+
+Fully Autonomous Orchestration: Avoid fully autonomous orchestration without human oversight.
+
+Enterprise-Grade RBAC: Fine-grained role-based access control will be deferred.
+
+5) Core Architecture (Native-First)
+Layer A - OpenClaw Native (Mandatory)
+
+Multi-Agent Role Isolation: Isolate tasks into different agents based on role to avoid overlap and confusion.
+
+Subtask Parallelization: Use sessions_spawn to allow parallel task execution.
+
+Scheduled Checks: Use cron/heartbeat to validate task activity.
+
+Session Traceability: Utilize session-based tracking to ensure full execution proof.
+
+Layer B - Thin Custom Policy (Minimal)
+
+Execution Stale Detection: Implement policies to detect when a task is stale (no activity for a defined period).
+
+Recovery & Escalation: Create policies for task recovery and escalation based on execution states.
+
+Evidence Validation: Ensure all completed tasks have verifiable proof (artifacts and verification results).
+
+Alert Deduplication & Cooldown: Avoid spam by introducing deduplication logic and cooldown between similar alerts.
+
+Layer C - Monitoring UI/API
+
+Summary & Task List: Show current task statuses along with detailed execution logs.
+
+Realtime Stream: Provide a live view of task activity via a streaming API.
+
+Truthful Split: Differentiate between workflow_state (task progress) and execution_state (runtime activity).
+
+6) Canonical Data Definitions
+6.1 State Definitions
+
+workflow_state: Represents the task's intended status (e.g., todo, in_progress, done).
+
+execution_state: Represents the actual runtime status (e.g., active, idle, stale, error).
+
+Note: execution_state is derived solely from runtime activity and should never be inferred from workflow_state.
+
+6.2 Required Task Fields
+
+task_id (immutable)
+
+title
+
+owner
+
+priority
+
+workflow_state
+
+execution_state
+
+next_action (required if in_progress)
+
+eta (required if in_progress)
+
+created_at, updated_at, last_action_at (UTC)
+
+evidence_path (required if done)
+
+verification_result (required if done)
+
+6.3 Validation Rules
+
+in_progress requires both next_action and eta.
+
+done requires both evidence_path and verification_result.
+
+Task ownership changes require an explicit handoff reason.
+
+7) Functional Requirements
+FR-1 Task Contract & Handoff
+
 Every dispatched task must include:
-- objective
-- expected artifact path
-- verification command
-- timeout
-- fallback owner
+
+Objective
+
+Expected artifact path
+
+Verification command
+
+Timeout
+
+Fallback owner
 
 Sub-agent output must include:
-- status
-- artifact_path
-- verification
-- risk_notes
-- next_handoff
 
-## FR-2 Runtime Signal Ingestion
-Collect:
-- session activity
-- tool call/result events
-- artifact writes
-- verification command outputs
-- timeout/error events
+Status
 
-## FR-3 Reconciliation Logic
-Default mapping:
-- activity <= 3m -> `active`
-- activity > 3m and <= stale threshold -> `idle`
-- no activity > stale threshold -> `stale`
-- no source -> `unknown`
-- runtime/tool failure -> `error`
+Artifact path
 
-Conflict visibility rule:
-If `workflow_state=in_progress` and `execution_state!=active`, show explicit mismatch badge.
+Verification result
 
-## FR-4 Monitoring APIs
+Risk notes
+
+Next handoff
+
+FR-2 Runtime Signal Ingestion
+
+We will collect:
+
+Session activity
+
+Tool call/result events
+
+Artifact writes
+
+Verification outputs
+
+Timeout/error events
+
+FR-3 Reconciliation Logic
+
+Mapping Rules:
+
+Active: Task is active if there's recent activity (<= 3 minutes).
+
+Idle: Task is idle if no activity for 3 minutes but still within the stale threshold.
+
+Stale: Task is stale if no activity exceeds the stale threshold.
+
+Unknown: Task is unknown if no signals are received.
+
+Error: Task is in error if there's a tool failure or timeout.
+
+FR-4 Monitoring APIs
+
 Required endpoints:
-- `GET /api/v1/monitoring/summary`
-- `GET /api/v1/monitoring/tasks`
-- `GET /api/v1/monitoring/task/:task_id`
-- `GET /api/v1/monitoring/logs?agent=<id>&limit=50`
-- `GET /api/v1/monitoring/stream` (SSE)
-- `POST /api/v1/monitoring/recovery/reassign`
-- `POST /api/v1/monitoring/recovery/escalate`
 
-## FR-5 Dashboard UX
+GET /api/v1/monitoring/summary
+
+GET /api/v1/monitoring/tasks
+
+GET /api/v1/monitoring/task/:task_id
+
+GET /api/v1/monitoring/logs?agent=<id>&limit=50
+
+GET /api/v1/monitoring/stream (SSE)
+
+POST /api/v1/monitoring/recovery/reassign
+
+POST /api/v1/monitoring/recovery/escalate
+
+FR-5 Dashboard UX
+
 Mandatory views:
-- global summary strip
-- task table with both states
-- per-agent realtime panel
-- CLI-like logs (50 row cap + fullscreen)
-- evidence panel (artifact + verification)
-- stale/alert panel
 
-## FR-6 Alerting
-- Trigger only on major transitions (`idle->stale`, `stale->escalated`, `error`)
-- Apply cooldown (default 15m)
-- Deduplicate repeated alerts per task
+Global summary strip
 
-## FR-7 Recovery Workflow
+Task table with both states
+
+Per-agent realtime panel
+
+CLI-like logs (50-row cap + fullscreen)
+
+Evidence panel (artifact + verification)
+
+Stale/alert panel
+
+FR-6 Alerting
+
+Alerting will be triggered on significant transitions:
+
+Idle → Stale
+
+Stale → Escalated
+
+Error states
+
+Alert deduplication and cooldown (15 minutes) will apply to reduce noise.
+
+FR-7 Recovery Workflow
+
 Thresholds:
-- warning: 10m no activity
-- stale: 20m
-- escalate: 30m
+
+Warning: 10 minutes without activity
+
+Stale: 20 minutes without activity
+
+Escalation: 30 minutes without activity
 
 Recovery actions:
-- suggest reassign at stale
-- escalate by severity after threshold
-- write audit log for all recovery actions
 
----
+Reassign at stale state
 
-## 8) Non-Functional Requirements
-- Truthfulness: no fake active status
-- Performance: summary p95 < 300ms, log query p95 < 400ms
-- Reliability: degraded sources -> `unknown`, no hard crash
-- Maintainability: reconciliation centralized and unit-tested
-- Observability: audit trail for alert/recovery decisions
+Escalate after threshold
 
----
+Audit logs for all recovery actions
 
-## 9) Acceptance Criteria (Must Pass)
-1. Invalid `in_progress` (missing next_action/eta) is rejected
-2. No-activity tasks cross to stale at threshold
-3. Cooldown prevents duplicate alert spam
-4. UI clearly shows workflow/execution mismatch
-5. Logs panel supports 50-row cap + fullscreen
-6. Evidence chain is navigable task->event->artifact->verify
-7. Reassign/escalation actions are audited
-8. Parallel POC (>=3 tasks) produces timestamped evidence
+8) Non-Functional Requirements
 
----
+Truthfulness: No fake active statuses; all states must be runtime-derived.
 
-## 10) Deployment Plan
+Performance: Summary queries should have a p95 response time of < 300ms, logs queries should be < 400ms.
 
-## DEP-0 Preconditions
-- Service split is available: `home-shell`, `money-manager`, `agent-monitor`
-- Env vars and routing basenames configured (`/`, `/money`, `/monitor`)
-- Monitoring paths configured and readable
+Reliability: Degraded sources should return an unknown state, with no system crashes.
 
-## DEP-1 Build & Package
-Per service:
-1. run tests/lint/build
-2. build container image
-3. tag as `<service>:<git-sha>`
+Maintainability: Reconciliation logic should be centralized and unit-tested.
 
-Gate: all checks pass.
+Observability: An audit trail must exist for all alert and recovery decisions.
 
-## DEP-2 Staging Deploy (Independent)
-Deploy one service at a time.
-Smoke check:
-- `/`
-- `/money/`
-- `/monitor/`
-- monitoring APIs
+9) Acceptance Criteria (Must Pass)
 
-Gate: all endpoints healthy; no routing regressions.
+Invalid in_progress (missing next_action or eta) is rejected.
 
-## DEP-3 Progressive Production Rollout
-Order:
-1. `agent-monitor`
-2. `home-shell`
-3. `money-manager` (only if changed)
+No-activity tasks transition to stale when the threshold is exceeded.
 
-Rollout mode:
-- 10% canary -> 50% -> 100%
-- verify error rate, latency, stale mismatch before promotion
+Alerts with cooldown prevent repeated spam.
 
-Rollback:
-- revert only impacted service image tag
-- no cross-service rollback unless shared infra issue
+The UI should clearly show discrepancies between workflow_state and execution_state.
 
-## DEP-4 Post-Deploy Verification
-- validate execution-state truthfulness
-- validate alert dedupe/cooldown
-- validate logs/fullscreen behavior
-- validate proof chain view
+Logs panel supports 50-row cap with fullscreen mode.
 
-## DEP-5 Operational Guardrails
-- noisy alerts off by default
-- critical transitions only
-- emergency global alerts-off switch
+Evidence chain (task → event → artifact → verify) must be navigable.
 
----
+All recovery actions (reassign/escalate) must be logged.
 
-## 11) Work Breakdown & Ownership Plan
+Parallel POCs (>=3 tasks) must generate timestamped evidence.
 
-## WS-A Architecture & Contracts (Coordinator)
-- A1 state schema finalization
-- A2 handoff/task contracts
-- A3 acceptance policy
+10) Deployment Plan
+DEP-1 Build & Package
 
-Deliverables:
-- `STATE_MACHINE_SPEC.md`
-- `TASK_CONTRACT_V1.md`
+Run tests/lint/build for each service.
 
-## WS-B Backend Monitoring Core (Engineer)
-- B1 signal collector
-- B2 reconciliation engine
-- B3 monitoring APIs
-- B4 alert dedupe/cooldown
-- B5 recovery endpoints
+Build the container image and tag it as <service>:<git-sha>.
 
-Deliverables:
-- monitoring API implementation
-- reconciliation tests
+Gate: All checks must pass.
 
-## WS-C Dashboard UX (Engineer + QA)
-- C1 workflow/execution split views
-- C2 stale + last_action visibility
-- C3 CLI-like logs + fullscreen
-- C4 evidence/proof panels
+DEP-2 Staging Deploy
 
-Deliverables:
-- UI updates + UX checklist
+Deploy one service at a time and perform smoke checks on routing paths (/, /money, /monitor) and monitoring APIs.
 
-## WS-D Validation & Proof (QA)
-- D1 acceptance suite execution
-- D2 stale/recovery simulation
-- D3 parallel POC evidence pack
+DEP-3 Progressive Production Rollout
 
-Deliverables:
-- `ACCEPTANCE_REPORT.md`
-- `POC_EVIDENCE_INDEX.md`
+Rollout order: agent-monitor → home-shell → money-manager.
+Canary testing (10% → 50% → 100%) with monitoring for error rates and stale mismatches.
 
-## WS-E DevOps & Release (Ops/Coordinator)
-- E1 independent CI pipelines per repo
-- E2 independent deploy pipelines
-- E3 routing + rollback scripts
-- E4 operational runbooks
+DEP-4 Post-Deploy Verification
 
-Deliverables:
-- CI/CD workflows
-- `DEPLOY_RUNBOOK.md`
-- `ROLLBACK_RUNBOOK.md`
+Validate execution state truthfulness.
 
----
+Validate alert deduplication and cooldown behavior.
 
-## 12) Milestones (No Day-Based Timeline)
-- **M1 Foundation**: WS-A + WS-B1/B2
-- **M2 Visibility**: WS-B3 + WS-C1/C2
-- **M3 Control**: WS-B4/B5 + WS-C3/C4 + WS-E1/E2
-- **M4 Proof & Signoff**: WS-D + WS-E3/E4
+Validate logs/fullscreen functionality.
 
----
+Validate proof chain views.
 
-## 13) Risk Register
-1. False active status -> enforce runtime-derived execution only
-2. Token burn fan-out -> cap concurrent sub-agents + timeout
-3. Alert noise -> dedupe + cooldown + severity filtering
-4. Weak closure quality -> mandatory evidence and verification gate
+DEP-5 Operational Guardrails
 
----
+Critical alerts only.
 
-## 14) Exit Criteria (Production Ready)
-System is considered restored when:
-1. dashboard status is truthful
-2. parallel sub-agent execution is reproducibly proven
-3. alerts are high-signal, low-noise
-4. each completed task has full proof chain
+Noisy alerts off by default.
 
----
+Emergency global alerts-off switch.
 
-## 15) Next Immediate Actions
-1. Generate `STATE_MACHINE_SPEC.md`
-2. Generate `TASK_CONTRACT_V1.md`
-3. Implement WS-B1/B2 skeleton and tests
-4. Run POC suite and publish `POC_EVIDENCE_INDEX.md`
+11) Work Breakdown & Ownership Plan
+WS-A Architecture & Contracts (Coordinator)
+
+A1: Finalize state schema.
+
+A2: Define task contracts and handoff policies.
+
+A3: Establish acceptance policies.
+
+Deliverables: STATE_MACHINE_SPEC.md, TASK_CONTRACT_V1.md
+
+WS-B Backend Monitoring Core (Engineer)
+
+B1: Implement signal collector.
+
+B2: Implement reconciliation engine.
+
+B3: Create monitoring APIs.
+
+B4: Implement alert deduplication and cooldown.
+
+B5: Implement recovery endpoints.
+
+Deliverables: Monitoring API implementation, reconciliation tests.
+
+WS-C Dashboard UX (Engineer + QA)
+
+C1: Implement workflow/execution split views.
+
+C2: Display stale + last_action visibility.
+
+C3: Implement CLI-like logs + fullscreen.
+
+C4: Display evidence/proof panels.
+
+Deliverables: UI updates, UX checklist.
+
+WS-D Validation & Proof (QA)
+
+D1: Execute acceptance suite.
+
+D2: Simulate stale/recovery scenarios.
+
+D3: Run parallel POC evidence pack.
+
+Deliverables: ACCEPTANCE_REPORT.md, POC_EVIDENCE_INDEX.md.
+
+WS-E DevOps & Release (Ops/Coordinator)
+
+E1: Set up independent CI pipelines.
+
+E2: Implement deploy pipelines.
+
+E3: Create routing + rollback scripts.
+
+E4: Write operational runbooks.
+
+Deliverables: CI/CD workflows, DEPLOY_RUNBOOK.md, ROLLBACK_RUNBOOK.md.
+
+12) Milestones
+
+M1: Foundation (WS-A + WS-B1/B2)
+
+M2: Visibility (WS-B3 + WS-C1/C2)
+
+M3: Control (WS-B4/B5 + WS-C3/C4 + WS-E1/E2)
+
+M4: Proof & Signoff (WS-D + WS-E3/E4)
+
+13) Risk Register
+
+False Active Status: Ensure execution state is derived only from runtime data.
+
+Token Burn & Fan-Out: Limit concurrent sub-agent activity to prevent overload.
+
+Alert Noise: Implement deduplication, cooldown, and severity filters.
+
+Weak Closure Quality: Enforce mandatory evidence and verification gates.
+
+14) Exit Criteria (Production Ready)
+
+The system is considered restored when:
+
+Dashboard status accurately reflects task progress.
+
+Parallel sub-agent execution is verifiably proven with timestamped evidence.
+
+Alerts are high-signal, low-noise.
+
+Completed tasks have a complete proof chain.
+
+15) Next Immediate Actions
+
+Generate STATE_MACHINE_SPEC.md.
+
+Generate TASK_CONTRACT_V1.md.
+
+Implement skeleton for WS-B1/B2 and run initial tests.
+
+Publish POC_EVIDENCE_INDEX.md after running POC suite.
