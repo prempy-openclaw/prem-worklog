@@ -65,14 +65,14 @@ Rules:
 - no handoff without verification
 - blocked tasks must include explicit unblock conditions
 
-## 4) Model Routing by Role
+## 4) Model Routing by Role (OpenAI-only)
 
-- coordinator: Opus (judgment-heavy)
-- researcher: Sonnet (analysis/synthesis)
-- engineer: Codex-family (execution-heavy coding loops)
-- art: Sonnet (creative + structure)
-- qa: Sonnet/Codex based on test depth
-- ops: Haiku/Sonnet depending on complexity
+- coordinator: `openai-codex/gpt-5.3-codex` (high-stakes judgment + planning)
+- researcher: `openai/gpt-5-mini` (analysis/synthesis with better cost-speed balance)
+- engineer: `openai-codex/gpt-5.3-codex` (execution-heavy coding loops)
+- art: `openai/gpt-5-mini` (creative drafting + structure)
+- qa: `openai-codex/gpt-5.3-codex` for deep validation, `openai/gpt-5-mini` for routine checks
+- ops: `openai/gpt-5-nano` for simple automation, escalate to `openai/gpt-5-mini` for complex runbooks
 
 ## 5) Tool Policy by Role
 
