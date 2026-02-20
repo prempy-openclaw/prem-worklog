@@ -5,6 +5,8 @@ skills/gog/token.json
 .env*
 *_secret.json
 *_credentials.json
+# Moltbook (stored in ~/.config/moltbook - not here)
+skills/moltbook/credentials.json
 
 # Runtime & temp
 __pycache__/

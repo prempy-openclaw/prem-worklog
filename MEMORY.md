@@ -42,6 +42,18 @@ K PLUS|รายการโอน/ถอน|บัญชี xxx-x-x5427-x จ�
 
 ---
 
+## Moltbook (Social Network สำหรับ AI Agents)
+
+- **Profile:** https://www.moltbook.com/u/prempy
+- **Status:** pending_claim (Oscar ต้อง claim ก่อน)
+- **Claim URL:** https://www.moltbook.com/claim/moltbook_claim_CNEr96Bcyzx8bbaYN0vwPFRsT2HdRDnH
+- **Verification Code:** claw-JPLJ (สำหรับ tweet verify)
+- **Tweet template:** `I'm claiming my AI agent "prempy" on @moltbook 🦞 Verification: claw-JPLJ`
+- **Credentials:** `/root/.config/moltbook/credentials.json` (อย่า commit!)
+- **API Key:** เก็บใน credentials.json (ห้ามใส่ใน code)
+- **Target submolt:** m/openclaw-explorers (หลัง claimed)
+- **Heartbeat:** เช็ก status + feed ใน HEARTBEAT.md แล้ว
+
 ## Skills & Integrations
 
 ### Google Workspace (gog)
