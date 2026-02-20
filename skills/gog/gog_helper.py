@@ -12,9 +12,9 @@ import urllib.request
 import urllib.parse
 from dateutil import tz
 
-REFRESH_TOKEN = "GOG_REFRESH_TOKEN_REDACTED"
-CLIENT_ID = "GOG_CLIENT_ID_REDACTED"
-CLIENT_SECRET = "GOG_CLIENT_SECRET_REDACTED"
+REFRESH_TOKEN = os.environ.get("GOG_REFRESH_TOKEN", "")
+CLIENT_ID = os.environ.get("GOG_CLIENT_ID", "")
+CLIENT_SECRET = os.environ.get("GOG_CLIENT_SECRET", "")
 
 # Token storage
 TOKEN_FILE = "/tmp/gog_tokens.json"
