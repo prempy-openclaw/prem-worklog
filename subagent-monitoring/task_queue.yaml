@@ -1,15 +1,16 @@
 tasks:
-  - task_id: TASK-20260211-POC-001
-    title: "Validate parallel sub-agent execution proof chain"
-    owner: coordinator
-    status: review
-    priority: high
-    created_at: "2026-02-11T11:38:00Z"
-    updated_at: "2026-02-11T11:39:30Z"
-    next_action: "Collect evidence index and publish acceptance report"
-    eta: "20m"
-    evidence_path: "/root/.openclaw/workspace/subagent-monitoring/POC_EVIDENCE_INDEX.md"
-    verification_result: "pass"
-    qa_status: "pass"
-    verification_pass: true
-locks: {}
+    - task_id: TASK-20260211-POC-001
+      title: Validate parallel sub-agent execution proof chain
+      owner: coordinator
+      status: review
+      priority: high
+      updated_at: "2026-02-11T13:32:39Z"
+      created_at: "2026-02-11T11:38:00Z"
+      next_action: Collect evidence index and publish acceptance report
+      eta: 20m
+      evidence_path: /root/.openclaw/workspace/subagent-monitoring/POC_EVIDENCE_INDEX.md
+      verification_result: pass
+      qa_status: pass
+      verification_pass: true
+      escalation_level: high
+      recovery_action: 'escalated: e2e check'
