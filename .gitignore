@@ -1,0 +1,13 @@
+# Secrets & credentials
+skills/gog/client_secret.json
+skills/gog/token.json
+*.env
+.env*
+*_secret.json
+*_credentials.json
+
+# Runtime & temp
+__pycache__/
+*.pyc
+.DS_Store
+tmp/
