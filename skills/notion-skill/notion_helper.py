@@ -4,13 +4,14 @@ Notion API Helper - Connect to Notion and query databases with beautiful display
 Requires NOTION_API_KEY environment variable
 """
 import json
+import os
 import sys
 import urllib.request
 import urllib.parse
 import datetime
 from dateutil import tz
 
-NOTION_API_KEY = "NOTION_API_KEY_REDACTED"
+NOTION_API_KEY = os.environ.get("NOTION_API_KEY", "")
 
 def get_page(page_id):
     """Get a Notion page"""
